@@ -38,7 +38,7 @@ You can run this project using **ONE** of the following methods:
 
 ### Step 1: Clone the repository
 
-git clone <REPOSITORY_URL>  
+git clone `https://github.com/singhtrivendra/docker-compose`  
 cd <PROJECT_FOLDER>
 
 ### Step 2: Install dependencies
