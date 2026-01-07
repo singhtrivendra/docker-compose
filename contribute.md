@@ -1,179 +1,339 @@
-# Contributing Guide
+# 🚀 Contributing Guide
 
-Thank you for your interest in contributing to this project. This guide explains how to set up the project, run it locally, and start contributing without confusion.
-
----
-
-## Prerequisites
-
-Please ensure the following are installed on your system:
-
-- Node.js (v18 or later)  
-  https://nodejs.org/en/download
-
-- Git  
-  https://git-scm.com/downloads
-
-- PostgreSQL (local installation recommended for Windows)  
-  https://www.postgresql.org/download/
-
-Optional but recommended:
-
-- Docker Desktop (includes Docker Compose)  
-  https://www.docker.com/products/docker-desktop/
+Thank you for your interest in contributing to this project! This guide will walk you through the setup process step-by-step.
 
 ---
 
-## Setup Options
+## 📋 Table of Contents
 
-You can run this project using **ONE** of the following methods:
-
-1. Local setup (recommended)
-2. Docker setup
-3. Docker Compose setup
+- [Prerequisites](#-prerequisites)
+- [Setup Options](#-setup-options)
+- [Option 1: Manual Installation (Recommended)](#-option-1-manual-installation-recommended)
+- [Option 2: Docker Installation](#-option-2-docker-installation)
+- [Option 3: Docker Compose Installation](#-option-3-docker-compose-installation)
+- [Useful Commands](#-useful-commands)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing Workflow](#-contributing-workflow)
 
 ---
 
-## Option 1: Local Setup (Recommended)
+## 📦 Prerequisites
 
-### Step 1: Clone the repository
+Before you begin, ensure you have the following installed:
 
-git clone `https://github.com/singhtrivendra/docker-compose`  
-cd <PROJECT_FOLDER>
+| Tool | Version | Download Link |
+|------|---------|---------------|
+| **Node.js** | v18 or later | [Download](https://nodejs.org/en/download) |
+| **Git** | Latest | [Download](https://git-scm.com/downloads) |
+| **PostgreSQL** | Latest | [Download](https://www.postgresql.org/download/) |
+| **Docker Desktop** *(optional)* | Latest | [Download](https://www.docker.com/products/docker-desktop/) |
 
-### Step 2: Install dependencies
+---
 
+## 🎯 Setup Options
+
+Choose **ONE** of the following setup methods:
+
+1. **Manual Installation** - Best for beginners and Windows users
+2. **Docker Installation** - Good for isolated environments
+3. **Docker Compose Installation** - Best for production-like setup
+
+---
+
+## 🔧 Option 1: Manual Installation (Recommended)
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/singhtrivendra/docker-compose
+
+```
+
+### Step 2: Install Dependencies
+
+```bash
 npm install
+```
 
-### Step 3: Verify PostgreSQL is running
+### Step 3: Setup PostgreSQL Database
 
+#### Start PostgreSQL locally:
+```bash
+# Verify PostgreSQL is running
 psql -U postgres
 
-Exit with:
-
+# Exit PostgreSQL shell
 \q
+```
 
-### Step 4: Create a `.env` file in the project root
+#### Go to neon.tech and get yourself a new DB
 
-DATABASE_URL=postgresql://postgres:<YOUR_PASSWORD>@localhost:5432/postgres  
+### Step 4: Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL=postgresql://postgres:<YOUR_PASSWORD>@localhost:5432/postgres
 PORT=3000
+```
 
-Replace `<YOUR_PASSWORD>` with your local PostgreSQL password.
+> **Note:** Replace `<YOUR_PASSWORD>` with your actual PostgreSQL password
 
-### Step 5: Run Prisma migrations
+### Step 5: Run Database Migrations
 
+```bash
 npx prisma migrate dev
+```
 
-If Prisma reports schema drift on first run:
-
+**First time setup?** If you see schema drift errors, run:
+```bash
 npx prisma migrate reset
+```
 
-Note: This will reset the database and delete all data (safe for development).
+> ⚠️ **Warning:** This will delete all existing data in the database
 
-### Step 6: Start the application
+### Step 6: Generate Prisma Client
 
+```bash
+npx prisma generate
+```
+
+### Step 7: Start the Application
+
+```bash
 npm run dev
+```
 
-The server will run at:
-
-http://localhost:3000
+**Success!** Your app should now be running at: `http://localhost:3000`
 
 ---
 
-## Option 2: Docker Setup
+## 🐳 Option 2: Docker Installation
 
-### Step 1: Start PostgreSQL using Docker
+### Step 1: Install Docker
 
-docker run -d --name postgres-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=postgres -p 5432:5432 postgres
+Download and install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)
 
-### Step 2: Update `.env`
+### Step 2: Start a New Docker Network
 
-DATABASE_URL=postgresql://postgres:mysecretpassword@localhost:5432/postgres  
-PORT=3000
+```bash
+docker network create user-project
+```
 
-### Step 3: Run Prisma and start the app
+### Step 3: Start PostgreSQL Container
 
-npx prisma migrate dev  
-npm run dev
+```bash
+docker run --network user-project --name postgres -e POSTGRES_PASSWORD=1234 -d -p 5432:5432 postgres
+```
+
+### Step 4: Build the Docker Image
+
+```bash
+docker build --network=host -t user-project .
+```
+
+### Step 5: Run the Application Container (Start the image)
+
+```bash
+docker run -e DATABASE_URL=postgresql://postgres:1234@postgres:5432/postgres --network user-project -p 3000:3000 user-project
+```
+
+
+ **Success!** Your app should now be running at: `http://localhost:3000/`
 
 ---
 
-## Option 3: Docker Compose Setup
+## 🐙 Option 3: Docker Compose Installation
 
-### Step 1: Install Docker Desktop
+### Step 1: Install Docker and Docker Compose
 
-https://www.docker.com/products/docker-desktop/
+Ensure Docker Desktop is installed (includes Docker Compose).
 
-### Step 2: Start all services
+### Step 2: Start All Services
 
+```bash
 docker-compose up
+```
 
-### Step 3: Stop all services
+To run in detached mode (background):
+```bash
+docker-compose up -d
+```
 
+### Step 3: Stop All Services
+
+```bash
 docker-compose down
+```
+
+To stop and remove volumes (clears database):
+```bash
+docker-compose down -v
+```
+
+**Success!** Your app should now be running at: `http://localhost:3000`
 
 ---
 
-## Useful Prisma Commands
+## 🛠️ Useful Commands
 
-npx prisma studio  
-npx prisma generate  
-npx prisma migrate dev  
-npx prisma migrate reset  
+### Prisma Commands
+
+| Command | Description |
+|---------|-------------|
+| `npx prisma studio` | Open Prisma Studio (database GUI) |
+| `npx prisma generate` | Generate Prisma Client |
+| `npx prisma migrate dev` | Create and apply migrations |
+| `npx prisma migrate reset` | Reset database and apply all migrations |
+
+### NPM Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
 
 ---
 
-## Common Issues
+## ❗ Troubleshooting
 
-### Prisma authentication error (P1000)
+### Issue: Prisma Authentication Error (P1000)
 
-- Ensure PostgreSQL is running
-- Verify username and password in `.env`
-- Test manually:
+**Solution:**
+1. Verify PostgreSQL is running:
+   ```bash
+   psql -U postgres
+   ```
+2. Check your `.env` file for correct credentials
+3. Test database connection manually
 
-psql -U postgres
+### Issue: Database Drift Detected
 
-### Database drift detected
-
-This is normal for first-time setup on an existing database:
-
+**Solution:**
+This is normal for first-time setup. Run:
+```bash
 npx prisma migrate reset
+```
+
+### Issue: Port Already in Use
+
+**Solution:**
+1. Find the process using port 3000:
+   ```bash
+   # On Windows
+   netstat -ano | findstr :3000
+   
+   # On Mac/Linux
+   lsof -i :3000
+   ```
+2. Kill the process or change the port in `.env`
+
+### Issue: Docker Container Won't Start
+
+**Solution:**
+1. Check if Docker Desktop is running
+2. View container logs:
+   ```bash
+   docker logs <container-id>
+   ```
+3. Remove old containers:
+   ```bash
+   docker-compose down -v
+   docker system prune
+   ```
 
 ---
 
-## Contribution Workflow
+## 🤝 Contributing Workflow
 
-1. Fork the repository  
-2. Create a new branch  
+### 1. Fork the Repository
 
+Click the "Fork" button on GitHub
+
+### 2. Clone Your Fork
+
+```bash
+git clone https://github.com/<YOUR_USERNAME>/docker-compose
+cd docker-compose
+```
+
+### 3. Create a Feature Branch
+
+```bash
 git checkout -b feature/your-feature-name
+```
 
-3. Make your changes  
-4. Test locally  
-5. Commit with a clear message  
-6. Open a Pull Request  
+### 4. Make Your Changes
+
+- Write clean, readable code
+- Follow existing code style
+- Test your changes thoroughly
+
+### 5. Commit Your Changes
+
+```bash
+git add .
+git commit -m "feat: add your feature description"
+```
+
+**Commit Message Guidelines:**
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes
+- `refactor:` - Code refactoring
+- `test:` - Adding tests
+- `chore:` - Maintenance tasks
+
+### 6. Push to Your Fork
+
+```bash
+git push origin feature/your-feature-name
+```
+
+### 7. Open a Pull Request
+
+Go to the original repository on GitHub and click "New Pull Request"
 
 ---
 
-## Code Guidelines
+## 📝 Code Guidelines
 
-- Use TypeScript
-- Follow the existing project structure
-- Keep commits small and focused
-- Write clear and descriptive commit messages
-
----
-
-## Need Help?
-
-If you face any issues, please open an issue with:
-
-- Operating system
-- Node.js version
-- Error logs
-- Steps to reproduce
+-  Use **TypeScript** for type safety
+-  Follow the existing **project structure**
+-  Write **clear, descriptive** commit messages
+-  Keep commits **small and focused**
+-  Add **comments** for complex logic
+-  Test your changes before submitting
 
 ---
 
-Thank you for contributing.  
-Happy coding 🚀
+## 🆘 Need Help?
+
+If you encounter any issues, please open a GitHub issue with:
+
+- 🖥️ **Operating System** (Windows/Mac/Linux)
+- 📦 **Node.js Version** (`node --version`)
+- 🐛 **Error Logs** (full error message)
+- 🔄 **Steps to Reproduce** the issue
+
+---
+
+## 📞 Community & Support
+
+- 💬 Open an issue on GitHub
+- 📧 Contact the maintainers
+- 🌟 Star the repository if you find it helpful!
+
+---
+
+<div align="center">
+
+**Thank you for contributing!** 🎉
+
+Happy Coding! 💻✨
+
+Made with ❤️ by the community
+
+</div>
