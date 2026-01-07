@@ -131,7 +131,12 @@ docker run --network user-project --name postgres -e POSTGRES_PASSWORD=1234 -d -
 ```bash
 docker build --network=host -t user-project .
 ```
+# Alternate for above 
 
+```bash
+$env:DOCKER_BUILDKIT=0
+docker build --network user-project -t user-project . 
+```
 ### Step 5: Run the Application Container (Start the image)
 
 ```bash
