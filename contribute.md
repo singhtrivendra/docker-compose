@@ -135,7 +135,7 @@ docker build --network=host -t user-project .
 ### Step 5: Run the Application Container (Start the image)
 
 ```bash
-docker run -e DATABASE_URL=postgresql://postgres:1234@postgres:5432/postgres --network user-project -p 3000:3000 user-project
+docker run -e DATABASE_URL=postgresql://postgres:1234@postgres:5432/postgres --network user-project -p 3001:3000 user-project
 ```
 
 
